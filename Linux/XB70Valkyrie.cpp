@@ -25,10 +25,10 @@ bool LND_GEAR;
 
 void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void *context, double *cl, double *cm, double *cd)
 {
-	const int nabsc = 9;
-	static const double AOA[nabsc] = {-180*RAD,-60*RAD,-30*RAD, -2*RAD, 15*RAD,20*RAD,25*RAD,60*RAD,180*RAD};
-	static const double CL[nabsc]  = {       0,      0,   -0.4,      0,    0.7,     1,   0.8,     0,      0};
-	static const double CM[nabsc]  = {       0,      0,  0.014, 0.0039, -0.006,-0.008,-0.010,     0,      0};
+	const int nabsc = 7;
+	static const double AOA[nabsc] = {  -4*RAD, -2*RAD,  0*RAD,  2*RAD,  4*RAD, 6*RAD, 8*RAD,};
+	static const double CL[nabsc]  = {   -0.14,  -0.11,  -0.02,   0.06,   0.13,  0.20,  0.28,};
+	static const double CM[nabsc]  = {    0.02,      0,      0,      0,      0,     0, -0.01,};
 	int i;
 	for (i = 0; i < nabsc-1 && AOA[i+1] < aoa; i++);
 	if (i < nabsc - 1) {
@@ -42,7 +42,7 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void *context, doub
 	}
 	double saoa = sin(aoa);
 	double pd = 0.015 + 0.4*saoa*saoa;  // profile drag
-	*cd = pd + oapiGetInducedDrag (*cl, 1.5, 0.7) + oapiGetWaveDrag (M, 0.75, 1.0, 1.1, 0.04);
+	*cd = pd + oapiGetInducedDrag (*cl, XB70_VLIFT_A, 1) + oapiGetWaveDrag (M, 0.6, 0.75, 0.8, 0.95);
 	// profile drag + (lift-)induced drag + transonic/supersonic wave (compressibility) drag
 }
 
@@ -62,7 +62,7 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void *context, dou
 		*cl = CL[nabsc - 1];
 	}
 	*cm = 0.0;
-	*cd = 0.015 + oapiGetInducedDrag (*cl, 1.5, 0.6) + oapiGetWaveDrag (M, 0.75, 1.0, 1.1, 0.04);
+	*cd = 0.015 + oapiGetInducedDrag (*cl, XB70_HLIFT_A, 0.6) + oapiGetWaveDrag (M, 0.75, 1.0, 1.1, 0.04);
 }
 
 
@@ -260,7 +260,7 @@ void XB70::clbkSetClassCaps(FILEHANDLE cfg){
 
     canards = CreateControlSurface3(AIRCTRL_ELEVATOR, 38.61, 1.7, _V(-0.0440, 1.4532, 14.7854),AIRCTRL_AXIS_XPOS, 1.0, anim_canards);
 
-    CreateControlSurface3 (AIRCTRL_ELEVATOR, 36.74, 5, _V(-0.0833, 0.3068, -26.6097), AIRCTRL_AXIS_XPOS, 1.0, anim_elevator);
+    CreateControlSurface3 (AIRCTRL_ELEVATOR, 36.74, 1.7, _V(-0.0833, 0.3068, -26.6097), AIRCTRL_AXIS_XPOS, 1.0, anim_elevator);
 	CreateControlSurface3 
     (AIRCTRL_ELEVATORTRIM, 36.74, 1.7, _V(-0.0833, 0.3068, -26.6097), AIRCTRL_AXIS_XPOS, 1.0, anim_elevatortrim);
 }

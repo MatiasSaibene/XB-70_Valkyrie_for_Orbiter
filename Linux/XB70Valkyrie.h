@@ -9,15 +9,15 @@
 //Vessel parameters
 const double XB70_SIZE = 22.8;  //Mean radius in meters.
 
-const double XB70_EMPTYMASS = 93000; //Empty mass in kg.
+const double XB70_EMPTYMASS = 115031; //Empty mass in kg.
 
-const double XB70_FUELMASS = 149500; //Fuel mass in kg.
+const double XB70_FUELMASS = 140000; //Fuel mass in kg.
 
-const double XB70_ISP = 50e4; //Fuel-specific impulse in m/s.
+const double XB70_ISP = 2e4; //Fuel-specific impulse in m/s.
 
-const double XB70_MAXMAINTH = 250e3; //Max main thrust in kN.
+const double XB70_MAXMAINTH = 89e3; //Max main thrust in kN.
 
-const double XB70_AFTERBRNTH = 16e3; //Max afterburner thrust.
+const double XB70_AFTERBRNTH = 120e3; //Max afterburner thrust.
 
 const double LANDING_GEAR_OPERATING_SPEED = 0.25;
 

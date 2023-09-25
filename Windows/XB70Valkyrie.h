@@ -9,19 +9,17 @@
 //Vessel parameters
 const double XB70_SIZE = 22.8;  //Mean radius in meters.
 
-const double XB70_EMPTYMASS = 93000; //Empty mass in kg.
+const double XB70_EMPTYMASS = 115031; //Empty mass in kg.
 
-const double XB70_FUELMASS = 149500; //Fuel mass in kg.
+const double XB70_FUELMASS = 140000; //Fuel mass in kg.
 
-const double XB70_ISP = 50e4; //Fuel-specific impulse in m/s.
+const double XB70_ISP = 2e4; //Fuel-specific impulse in m/s.
 
-const double XB70_MAXMAINTH = 504e3; //Max main thrust in kN.
+const double XB70_MAXMAINTH = 89e3; //Max main thrust in kN.
 
-const double XB70_AFTERBRNTH = 768e3; //Max afterburner thrust.
+const double XB70_AFTERBRNTH = 120e3; //Max afterburner thrust.
 
 const double LANDING_GEAR_OPERATING_SPEED = 0.25;
-
-const VECTOR3 XB70_CoP = {0, 0, 0}; //Center of pressure for airfoils in m.
 
 const VECTOR3 XB70_CS = {199.5443, 585.7, 33.2172};
 
@@ -103,7 +101,7 @@ class XB70: public VESSEL4{
         void clbkLoadStateEx(FILEHANDLE scn, void *vs)override;
         void clbkSaveState(FILEHANDLE scn)override;
         void clbkPostStep(double, double, double)override;
-        virtual int clbkConsumeBufferedKey(DWORD, bool, char *)override;
+        int clbkConsumeBufferedKey(DWORD, bool, char *)override;
 
 
         PARTICLESTREAMSPEC canard_contrails;
