@@ -5,6 +5,7 @@
 #include "OrbiterAPI.h"
 #include "Orbitersdk.h"
 #include "VesselAPI.h"
+#include "XB70_mesh_definitions.h"
 
 //Vessel parameters
 const double XB70_SIZE = 22.8;  //Mean radius in meters.
@@ -38,44 +39,37 @@ const double XB70_HLIFT_A = 1;
 
 //Define touchdown points
 //For gear down
-static const int ntdvtx_geardown = 13;
-static TOUCHDOWNVTX tdvtx_geardown 
-/*[ntdvtx_geardown] = {
-    {_V(-0.0494, -1.6817, 7.4897), 1e6, 1e5,1.6, 0.1},
-    {_V(3.5852, -1.6817, -6.7983), 1e6, 1e5, 1.6, 0.1},
-    {_V(-3.4148, -1.6817, -6.7983), 1e6, 1e5, 1.6, 0.1},
-};*/
+static const int ntdvtx_geardown = 12;
+static TOUCHDOWNVTX tdvtx_geardown[ntdvtx_geardown] = {
+    
+    {_V(-0.0676, -4.9817, 27.4759), 3e6, 3e5, 1.6, 0.1}, //Provisory touchdownpoint.
+    //{(TDP_Front_landing_gearLocation), 1e6, 1e5, 1.6, 0.1},  //Real touchdown point.
+    {(TDP_Rear_left_landing_gearLocation), 3e6, 3e5, 1.6, 0.1},
+    {(TDP_Rear_right_landing_gearLocation), 3e6, 3e5, 1.6, 0.1},
 
-[ntdvtx_geardown] = {
-    {_V(-0.0676, -4.9817, 27.4759), 10e6, 5e5, 1.6, 0.1},
-    {_V(-15.0517, -4.9817, -27.4003), 10e6, 5e5, 1.6, 0.1},
-    {_V(15.0901, -4.9817, -27.4759), 10e6, 5e5, 1.6, 0.1},
-
-    {_V(-0.0412, -2.6323, -2.1116), 1e7, 1e5, 3.0},
-    {_V(-4.0892, -1.7353, -24.3643), 1e7, 1e5, 3.0},
-    {_V(4.0243, -1.7353, -24.3847), 1e7, 1e5},
-    {_V(-15.8078, 0.2901, -27.8032), 1e7, 1e5, 3.0},
-    {_V(15.6921, 0.2901, -27.8822), 1e7, 1e5, 3.0},
-    {_V(4.4373, 5.0727, -26.0741), 1e7, 1e5, 3.0},
-    {_V(-4.5627, 5.0727, -26.0515), 1e7, 1e5, 3.0},
-    {_V(-4.4162, 8.3727, -20.6627), 1e7, 1e5, 3.0},
-    {_V(0.0033, 2.3737, 15.4707), 1e7, 1e5, 3.0},
-    {_V(0.0001, 0.0308, 29.9769), 1e7, 1e5, 3.0},
+    {(TDP_FrontLocation), 1e7, 1e5, 3.0},
+    {(TDP_Rear_leftLocation), 1e7, 1e5, 3.0},
+    {(TDP_Rear_rightLocation), 1e7, 1e5},
+    {(TDP_Left_wingLocation), 1e7, 1e5, 3.0},
+    {(TDP_Right_wing_tdpLocation), 1e7, 1e5, 3.0},
+    {(TDP_Right_aileronLocation), 1e7, 1e5, 3.0},
+    {(TDP_Left_aileronLocation), 1e7, 1e5, 3.0},
+    {(TDP_Front_fuselageLocation), 1e7, 1e5, 3.0},
+    {(TDP_pitot_probeLocation), 1e7, 1e5, 3.0},
 };
 
 //For gear up
-static const int ntdvtx_gearup = 10;
+static const int ntdvtx_gearup = 9;
 static TOUCHDOWNVTX tdvtx_gearup[ntdvtx_gearup] = {
-    {_V(-0.0412, -2.6323, -2.1116), 1e7, 1e5, 3.0},
-    {_V(-4.0892, -1.7353, -24.3643), 1e7, 1e5, 3.0},
-    {_V(4.0243, -1.7353, -24.3847), 1e7, 1e5},
-    {_V(-15.8078, 0.2901, -27.8032), 1e7, 1e5, 3.0},
-    {_V(15.6921, 0.2901, -27.8822), 1e7, 1e5, 3.0},
-    {_V(4.4373, 5.0727, -26.0741), 1e7, 1e5, 3.0},
-    {_V(-4.5627, 5.0727, -26.0515), 1e7, 1e5, 3.0},
-    {_V(-4.4162, 8.3727, -20.6627), 1e7, 1e5, 3.0},
-    {_V(0.0033, 2.3737, 15.4707), 1e7, 1e5, 3.0},
-    {_V(0.0001, 0.0308, 29.9769), 1e7, 1e5, 3.0},
+    {(TDP_FrontLocation), 1e7, 1e5, 3.0},
+    {(TDP_Rear_leftLocation), 1e7, 1e5, 3.0},
+    {(TDP_Rear_rightLocation), 1e7, 1e5},
+    {(TDP_Left_wingLocation), 1e7, 1e5, 3.0},
+    {(TDP_Right_wing_tdpLocation), 1e7, 1e5, 3.0},
+    {(TDP_Right_aileronLocation), 1e7, 1e5, 3.0},
+    {(TDP_Left_aileronLocation), 1e7, 1e5, 3.0},
+    {(TDP_Front_fuselageLocation), 1e7, 1e5, 3.0},
+    {(TDP_pitot_probeLocation), 1e7, 1e5, 3.0},
 };
 
 //XB70 class interface
@@ -115,7 +109,9 @@ class XB70: public VESSEL4{
         unsigned int anim_raileron;
         unsigned int anim_elevator;
         unsigned int anim_canards;
-        
+        unsigned int anim_lrudder;
+        unsigned int anim_rrudder;
+
         double landing_gear_proc;
         double door_proc;
 

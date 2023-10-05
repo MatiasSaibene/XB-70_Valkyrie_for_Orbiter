@@ -18,17 +18,16 @@
 #include <cstdint>
 #include <algorithm>
 
-bool LND_GEAR;
-
-
 // 1. vertical lift component (code from DeltaGlider)
+
+// 1. vertical lift component (wings and body)
 
 void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void *context, double *cl, double *cm, double *cd)
 {
-	const int nabsc = 7;
-	static const double AOA[nabsc] = {  -4*RAD, -2*RAD,  0*RAD,  2*RAD,  4*RAD, 6*RAD, 8*RAD,};
-	static const double CL[nabsc]  = {   -0.14,  -0.11,  -0.02,   0.06,   0.13,  0.20,  0.28,};
-	static const double CM[nabsc]  = {    0.02,      0,      0,      0,      0,     0, -0.01,};
+	const int nabsc = 9;
+	static const double AOA[nabsc] = {-180*RAD,-60*RAD,-30*RAD, -2*RAD, 15*RAD,20*RAD,25*RAD,60*RAD,180*RAD};
+	static const double CL[nabsc]  = {       0,      0,   -0.4,      0,    0.7,     1,   0.8,     0,      0};
+	static const double CM[nabsc]  = {       0,      0,  0.014, 0.0039, -0.006,-0.008,-0.010,     0,      0};
 	int i;
 	for (i = 0; i < nabsc-1 && AOA[i+1] < aoa; i++);
 	if (i < nabsc - 1) {
@@ -42,11 +41,11 @@ void VLiftCoeff (VESSEL *v, double aoa, double M, double Re, void *context, doub
 	}
 	double saoa = sin(aoa);
 	double pd = 0.015 + 0.4*saoa*saoa;  // profile drag
-	*cd = pd + oapiGetInducedDrag (*cl, XB70_VLIFT_A, 1) + oapiGetWaveDrag (M, 0.6, 0.75, 0.8, 0.95);
+	*cd = pd + oapiGetInducedDrag (*cl, 1.5, 0.7) + oapiGetWaveDrag (M, 0.75, 1.0, 1.1, 0.04);
 	// profile drag + (lift-)induced drag + transonic/supersonic wave (compressibility) drag
 }
 
-// 2. horizontal lift component (code from DeltaGlider)
+// 2. horizontal lift component (vertical stabilisers and body)
 
 void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void *context, double *cl, double *cm, double *cd)
 {
@@ -62,7 +61,7 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void *context, dou
 		*cl = CL[nabsc - 1];
 	}
 	*cm = 0.0;
-	*cd = 0.015 + oapiGetInducedDrag (*cl, XB70_HLIFT_A, 0.6) + oapiGetWaveDrag (M, 0.75, 1.0, 1.1, 0.04);
+	*cd = 0.015 + oapiGetInducedDrag (*cl, 1.5, 0.6) + oapiGetWaveDrag (M, 0.75, 1.0, 1.1, 0.04);
 }
 
 
@@ -79,10 +78,6 @@ XB70::XB70(OBJHANDLE hVessel, int flightmodel) : VESSEL4(hVessel, flightmodel){
 
     DefineAnimations();
 
-    SetGearDown();
-
-    LND_GEAR = true;
-
 }
 
 //Destructor
@@ -94,7 +89,7 @@ XB70::~XB70(){
 void XB70::DefineAnimations(void){
 
     //Landing gear
-    static unsigned int FrontLandingGearGrp[3] = {10, 11, 12};
+    static unsigned int FrontLandingGearGrp[3] = {9, 10, 11};
     static MGROUP_ROTATE FrontLandingGear_Rotate(
         0,
         FrontLandingGearGrp,
@@ -104,7 +99,7 @@ void XB70::DefineAnimations(void){
         (float)(2.2689)
     );
 
-    static unsigned int RearLandingGearGrp[7] = {13, 14, 19, 20, 21, 22, 23};
+    static unsigned int RearLandingGearGrp[7] = {12, 13, 18, 19, 20, 21, 22};
     static MGROUP_ROTATE RearLandingGear_Rotate(
         0,
         RearLandingGearGrp,
@@ -114,7 +109,7 @@ void XB70::DefineAnimations(void){
         (float)(1.6057)
     );
 
-    static unsigned int DoorOpenGrp[1] = {6};
+    static unsigned int DoorOpenGrp[1] = {5};
     static MGROUP_ROTATE DoorOpen(
         0,
         DoorOpenGrp,
@@ -181,7 +176,7 @@ void XB70::DefineAnimations(void){
     anim_elevator = CreateAnimation(0.5);
     AddAnimationComponent(anim_elevator, 0, 1, &Elevator);
 
-    static unsigned int CanardsGrp[1] = {1};
+    static unsigned int CanardsGrp[1] = {0};
     static MGROUP_ROTATE Canards(
         0,
         CanardsGrp,
@@ -192,6 +187,30 @@ void XB70::DefineAnimations(void){
     );
     anim_canards = CreateAnimation(0.5);
     AddAnimationComponent(anim_canards, 0, 1, &Canards);
+
+    static unsigned int LRudderGrp[1] = {LRudderId};
+    static MGROUP_ROTATE LRudder(
+        0,
+        LRudderGrp,
+        1,
+        (LRudder_axisLocation),
+        _V(0, 1, 0),
+        (float)(0.2094)
+    );
+    anim_lrudder = CreateAnimation(0.5);
+    AddAnimationComponent(anim_lrudder, 0, 1, &LRudder);
+
+    static unsigned int RRudderGrp[1] = {RRudderId};
+    static MGROUP_ROTATE RRudder(
+        0,
+        RRudderGrp,
+        1,
+        (RRudder_axisLocation),
+        _V(0, 1, 0),
+        (float)(0.2094)
+    );
+    anim_rrudder = CreateAnimation(0.5);
+    AddAnimationComponent(anim_rrudder, 0, 1, &RRudder);
 }
 
 
@@ -248,21 +267,26 @@ void XB70::clbkSetClassCaps(FILEHANDLE cfg){
 
     //Code from DeltaGlider
 
-    hwing = CreateAirfoil3 (LIFT_VERTICAL, _V(-0.0958, 0.0574, -11.9142), VLiftCoeff, 0, XB70_VLIFT_C, XB70_VLIFT_S, XB70_VLIFT_A);
+    hwing = CreateAirfoil3 (LIFT_VERTICAL, _V(0, 0, 0), VLiftCoeff, 0, XB70_VLIFT_C, XB70_VLIFT_S, XB70_VLIFT_A);
 	// wing and body lift+drag components
 
-	CreateAirfoil3 (LIFT_HORIZONTAL, _V(0.0789, 1.8259, -24.2352), HLiftCoeff, 0, XB70_HLIFT_C, XB70_HLIFT_S, XB70_HLIFT_A);
+	CreateAirfoil3 (LIFT_HORIZONTAL, (Vertical_tailsLocation), HLiftCoeff, 0, XB70_HLIFT_C, XB70_HLIFT_S, XB70_HLIFT_A);
 	// vertical stabiliser and body lift and drag components
     
     
-	hlaileron = CreateControlSurface3 (AIRCTRL_AILERON, 18.37, 1.7, _V(-7.6463, 0.3196, -26.8960), AIRCTRL_AXIS_XPOS, 1.0, anim_raileron);
-	hraileron = CreateControlSurface3 (AIRCTRL_AILERON, 18.37, 1.7, _V(7.4547, 0.3174, -26.8053), AIRCTRL_AXIS_XNEG, 1.0, anim_laileron);
+	hlaileron = CreateControlSurface3 (AIRCTRL_AILERON, 18.37, 1, _V(-7.6463, 0.3196, -26.8960), AIRCTRL_AXIS_AUTO, 1.0, anim_raileron);
+	hraileron = CreateControlSurface3 (AIRCTRL_AILERON, 18.37, 1, _V(7.4547, 0.3174, -26.8053), AIRCTRL_AXIS_AUTO, 1.0, anim_laileron);
 
-    canards = CreateControlSurface3(AIRCTRL_ELEVATOR, 38.61, 1.7, _V(-0.0440, 1.4532, 14.7854),AIRCTRL_AXIS_XPOS, 1.0, anim_canards);
+    canards = CreateControlSurface3(AIRCTRL_ELEVATOR, 10.16, 1, _V(-0.0440, 1.4532, 14.7854),AIRCTRL_AXIS_AUTO, 1.0, anim_canards);
 
-    CreateControlSurface3 (AIRCTRL_ELEVATOR, 36.74, 1.7, _V(-0.0833, 0.3068, -26.6097), AIRCTRL_AXIS_XPOS, 1.0, anim_elevator);
+    CreateControlSurface3 (AIRCTRL_ELEVATOR, 36.74, 1, _V(-0.0833, 0.3068, -26.6097), AIRCTRL_AXIS_AUTO, 1.0, anim_elevator);
 	CreateControlSurface3 
-    (AIRCTRL_ELEVATORTRIM, 36.74, 1.7, _V(-0.0833, 0.3068, -26.6097), AIRCTRL_AXIS_XPOS, 1.0, anim_elevatortrim);
+    (AIRCTRL_ELEVATORTRIM, 36.74, 1, _V(-0.0833, 0.3068, -26.6097), AIRCTRL_AXIS_AUTO, 1.0, anim_elevatortrim);
+
+    CreateControlSurface3(AIRCTRL_RUDDER, 17.76, 1, (LRudderLocation), AIRCTRL_AXIS_AUTO, 1.0, 
+    anim_lrudder);
+    CreateControlSurface3(AIRCTRL_RUDDER, 17.76, 1, (RRudderLocation), AIRCTRL_AXIS_AUTO, 1.0, anim_rrudder);
+
 }
 
 
@@ -333,20 +357,13 @@ void XB70::UpdateLandingGearAnimation(double simdt) {
         if (landing_gear_status == GEAR_DEPLOYING) {
             if (landing_gear_proc > 0.0) landing_gear_proc = std::max(0.0, landing_gear_proc - da);
             else landing_gear_status = GEAR_DOWN;
-            LND_GEAR = true;
-            //SetTouchdownPoints(tdvtx_geardown, ntdvtx_geardown);
+            SetTouchdownPoints(tdvtx_geardown, ntdvtx_geardown);
         } else {
             if (landing_gear_proc < 1.0) landing_gear_proc = std::min(1.0, landing_gear_proc + da);
             else landing_gear_status = GEAR_UP;
-            LND_GEAR = false;
-            //SetTouchdownPoints(tdvtx_gearup, ntdvtx_gearup);
+            SetTouchdownPoints(tdvtx_gearup, ntdvtx_gearup);
         }
         SetAnimation(anim_landing_gear, landing_gear_proc);
-    }
-    if(LND_GEAR == true){
-        SetTouchdownPoints(tdvtx_geardown, ntdvtx_geardown);
-    }else if (LND_GEAR == false){
-        SetTouchdownPoints(tdvtx_gearup, ntdvtx_gearup);
     }
 }
 
