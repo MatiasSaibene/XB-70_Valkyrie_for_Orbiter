@@ -18,7 +18,7 @@ const double XB70_ISP = 2e4; //Fuel-specific impulse in m/s.
 
 const double XB70_MAXMAINTH = 89e3; //Max main thrust in kN.
 
-const double XB70_AFTERBRNTH = 120e4;//120e3; //Max afterburner thrust.
+const double XB70_AFTERBRNTH = 30e4;//120e3; //Max afterburner thrust.
 
 const double LANDING_GEAR_OPERATING_SPEED = 0.06;
 
@@ -96,6 +96,7 @@ class XB70: public VESSEL4{
     public:
         enum LandingGearStatus{GEAR_DOWN, GEAR_UP, GEAR_DEPLOYING, GEAR_STOWING} landing_gear_status;
         enum DoorStatus{DOOR_CLOSED, DOOR_OPEN, DOOR_CLOSING, DOOR_OPENING} door_status;
+        enum NoseConeStatus{NOSEC_DEPLOYED, NOSEC_STOWED, NOSEC_DEPLOYING, NOSEC_STOWING} nosecone_status;
 
         XB70(OBJHANDLE hVessel, int flightmodel);
         virtual ~XB70();
@@ -105,8 +106,11 @@ class XB70: public VESSEL4{
         void ActivateDoor(DoorStatus actiondoor);
         void SetGearDown(void);
         void CloseDoor(void);
+        void ActivateNoseCone(NoseConeStatus action);
+        void DeployNoseCone(void);
         void UpdateLandingGearAnimation(double);
         void UpdateDoorAnimation(double);
+        void UpdateNoseConeAnimation(double);
         double UpdateLvlSndBarrier();
         double UpdateLvlCanardsEffect();
 
@@ -122,6 +126,7 @@ class XB70: public VESSEL4{
     private:
         unsigned int anim_landing_gear;
         unsigned int anim_door;
+        unsigned int anim_nosecone;
         unsigned int anim_elevatortrim;
         unsigned int anim_laileron;
         unsigned int anim_raileron;
@@ -132,9 +137,11 @@ class XB70: public VESSEL4{
 
         double landing_gear_proc;
         double door_proc;
+        double nosecone_proc;
 
         AIRFOILHANDLE hwing;
         CTRLSURFHANDLE hlaileron, hraileron, canards;
+        MESHHANDLE valky_mesh;
 
 };
 

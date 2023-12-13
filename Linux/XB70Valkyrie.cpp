@@ -68,6 +68,8 @@ void HLiftCoeff (VESSEL *v, double beta, double M, double Re, void *context, dou
 //Constructor
 XB70::XB70(OBJHANDLE hVessel, int flightmodel) : VESSEL4(hVessel, flightmodel){
     
+    valky_mesh = oapiLoadMesh("XB-70_Valkyrie");
+
     landing_gear_proc = 0.0;
 
     door_proc = 0.0;
@@ -82,9 +84,11 @@ XB70::XB70(OBJHANDLE hVessel, int flightmodel) : VESSEL4(hVessel, flightmodel){
 
 //Destructor
 XB70::~XB70(){
+    
+    oapiDeleteMesh(valky_mesh);
 
+    this->VESSEL4::~VESSEL4();
 }
-
 
 void XB70::DefineAnimations(void){
 
@@ -241,6 +245,22 @@ void XB70::DefineAnimations(void){
     AddAnimationComponent(anim_door, 0, 1, &DoorOpen);
 
 
+    ///////Nose cone
+
+    static unsigned int NoseConeGrp[1] = {Nose_cone_Id};
+    static MGROUP_ROTATE NoseCone(
+        0,
+        NoseConeGrp,
+        1,
+        (Axis_nosecone_Location),
+        _V(1, 0, 0),
+        (float)(10*RAD)
+    );
+
+    anim_nosecone = CreateAnimation(0.0);
+    AddAnimationComponent(anim_nosecone, 0, 1, &NoseCone);
+
+
     //////Control surfaces   
 
     static unsigned int ElevatorTrimGrp[2] = {hlaileron_Id, hraileron_Id};
@@ -372,7 +392,7 @@ void XB70::clbkSetClassCaps(FILEHANDLE cfg){
 
 
     //Add a mesh for the visual
-    AddMesh("XB-70_Valkyrie");
+    AddMesh(valky_mesh);
 
     //Sound speed barrier visual effect
     static PARTICLESTREAMSPEC soundbarrierpart = {
@@ -461,6 +481,15 @@ void XB70::CloseDoor(void){
         DOOR_OPENING : DOOR_CLOSING);
 }
 
+void XB70::DeployNoseCone(void){
+    ActivateNoseCone((nosecone_status == NOSEC_DEPLOYED || nosecone_status == NOSEC_DEPLOYING) ?
+    NOSEC_STOWING : NOSEC_DEPLOYING);
+}
+
+void XB70::ActivateNoseCone(NoseConeStatus action){
+    nosecone_status = action;
+}
+
 void XB70::ActivateLandingGear(LandingGearStatus action){
     landing_gear_status = action;
 }
@@ -473,6 +502,7 @@ void XB70::ActivateDoor(DoorStatus actiondoor){
 
 void XB70::clbkPostStep(double simt, double simdt, double mjd){
     UpdateLandingGearAnimation(simdt);
+    UpdateNoseConeAnimation(simdt);
     UpdateDoorAnimation(simdt);
     lvl = UpdateLvlSndBarrier();
     lvlcontrailcanards = UpdateLvlCanardsEffect();
@@ -510,6 +540,21 @@ void XB70::UpdateDoorAnimation(double simdt) {
     }
 }
 
+void XB70::UpdateNoseConeAnimation(double simdt){
+
+    if (nosecone_status >= NOSEC_DEPLOYING) {
+            double da = simdt * LANDING_GEAR_OPERATING_SPEED;
+            if (nosecone_status == NOSEC_DEPLOYING) {
+                if (nosecone_proc > 0.0) nosecone_proc = std::max(0.0, nosecone_proc - da);
+                else nosecone_status = NOSEC_DEPLOYED;
+            } else {
+                if (nosecone_proc < 1.0) nosecone_proc = std::min(1.0, nosecone_proc + da);
+                else nosecone_status = NOSEC_STOWED;
+            }
+            SetAnimation(anim_nosecone, nosecone_proc);
+        }
+}
+
 double XB70::UpdateLvlSndBarrier(){
     
     double machnumber = GetMachNumber();
@@ -542,6 +587,10 @@ int XB70::clbkConsumeBufferedKey(int key, bool down, char *kstate){
     }
     if(key == OAPI_KEY_K && down){
         CloseDoor();
+        return 1;
+    }
+    if(key == OAPI_KEY_C && down){
+        DeployNoseCone();
         return 1;
     }
     return 0;

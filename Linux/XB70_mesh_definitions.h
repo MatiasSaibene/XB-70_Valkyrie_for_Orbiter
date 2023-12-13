@@ -1,5 +1,5 @@
 // Auto generated code file.  Blender: 3.3.9  Blender Tools: (2, 1, 3)
-// Date: Mon Dec 11 16:45:26 2023
+// Date: Tue Dec 12 19:11:30 2023
 
 
 #include "Orbitersdk.h"
@@ -74,7 +74,7 @@
     constexpr VECTOR3 hlaileron_Location =     {-7.6463, 1.1496, -26.8960};
     constexpr VECTOR3 RRudder_Location =     {4.4193, 3.5266, -27.5193};
     constexpr VECTOR3 LRudder_Location =     {-4.5645, 3.5266, -27.4967};
-    constexpr VECTOR3 Nose_cone_Location =     {-0.0158, 1.0579, 24.6537};
+    constexpr VECTOR3 Nose_cone_Location =     {-0.0197, 2.0982, 22.3571};
     constexpr VECTOR3 Front_landing_gear_door2_Location =     {-0.9694, -1.6586, 0.5414};
     constexpr VECTOR3 Front_landing_gear_door1_Location =     {-0.0869, -1.5528, 2.6271};
     constexpr VECTOR3 Rear_landing_gear_doors_Location =     {-0.0869, -1.1492, -11.6312};
@@ -114,6 +114,7 @@
     constexpr VECTOR3 Axis_right_landing_gear2_Location =     {3.2364, -2.9489, -12.5063};
     constexpr VECTOR3 Right_canard_contrail_Location =     {4.3183, 2.3173, 15.0224};
     constexpr VECTOR3 Left_canard_contrail_Location =     {-4.4369, 2.3173, 15.0224};
+    constexpr VECTOR3 Axis_nosecone_Location =     {-0.0197, 2.0982, 22.3571};
     constexpr VECTOR3 ENG0_Location =     {-3.6722, 0.0006, -25.5365};
     constexpr VECTOR3 ENG1_Location =     {-2.2222, 0.0006, -25.5401};
     constexpr VECTOR3 ENG2_Location =     {-0.8022, 0.0006, -25.5437};
